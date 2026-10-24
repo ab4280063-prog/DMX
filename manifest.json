@@ -1,0 +1,18 @@
+{
+    "short_name": "DMX PRO",
+    "name": "DMX Master Pro - Console Assistant",
+    "description": "Assistente de console DMX Master Pro",
+    "icons": [
+        {
+            "src": "./img/play_store_512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
+        }
+    ],
+    "start_url": "./index.html",
+    "background_color": "#121212",
+    "theme_color": "#121212",
+    "display": "standalone",
+    "orientation": "portrait"
+}
