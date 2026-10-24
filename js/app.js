@@ -836,7 +836,6 @@ ${materialData}
         }
     }
 
-
     function exportReportPdf() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
@@ -928,75 +927,6 @@ ${materialData}
 
         savePdf(doc, `report_${state.projectName || 'dmx'}.pdf`);
     }
-    // EVENTO DO SEU BOTÃO DE DOWNLOAD (Adapte com a sua variável do botão se necessário)
-    document.getElementById('seu-botao-download').addEventListener('click', () => {
-
-        // 1. Pegar o nome do aparelho do seu input da tela
-        // (Substitua pelo id correto do seu campo de texto se for diferente)
-        const nomeAparelho = document.querySelector('.aba-params input[type="text"]').value || "Aparelho_Custom";
-
-        // Criar o nome do arquivo limpo (ex: "par_led_7ch.xml")
-        const nomeArquivo = nomeAparelho.toLowerCase().replace(/[^a-z0-9]/g, "_") + ".xml";
-
-        // 2. Montar o cabeçalho oficial que a GrandMA2 exige para ler no Patch
-        let xmlText = `<?xml version="1.0" encoding="utf-8"?>
-<MA xmlns:xsi="http://w3.org" xmlns="http://malighting.de" xsi:schemaLocation="http://malighting.de http://malighting.de" major_version="3" minor_version="9" stream_version="6">
-  <FixtureType index="0" name="${nomeAparelho}" short_name="${nomeAparelho.substring(0, 4)}">
-    <Modules index="0">
-      <Module index="0" name="Main Module" class="Head" beam_angle="25" beam_intensity="10000">
-`;
-
-        // 3. Pegar os canais criados na tela do seu app e adicionar no arquivo
-        // (Mapeia a lista de canais que você gerou dinamicamente com o botão + ADICIONAR)
-        listaCanais.forEach((canal, index) => {
-            let nomeParametro = canal.param.toUpperCase().trim();
-            let feature = "DIMMER";
-            let preset = "DIMMER";
-
-            // Tradução automática para os Encoders padrão da MA2
-            if (nomeParametro === 'DIMMER' || nomeParametro === 'DIM') {
-                nomeParametro = 'DIM'; feature = 'DIMMER'; preset = 'DIMMER';
-            } else if (nomeParametro === 'R' || nomeParametro === 'RED') {
-                nomeParametro = 'COLOR1_R'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'G' || nomeParametro === 'GREEN') {
-                nomeParametro = 'COLOR1_G'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'B' || nomeParametro === 'BLUE') {
-                nomeParametro = 'COLOR1_B'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'SHUTER' || nomeParametro === 'STROBE' || nomeParametro === 'SHUTTER') {
-                nomeParametro = 'SHUTTER'; feature = 'SHUTTER'; preset = 'BEAM';
-            } else if (nomeParametro === 'SPEED') {
-                nomeParametro = 'BEAMSPEED'; feature = 'SPEED'; preset = 'BEAM';
-            } else {
-                // Se for outro canal qualquer, mantém o nome digitado em maiúsculo
-                feature = 'DIMMER'; preset = 'DIMMER';
-            }
-
-            // Adiciona a linha do canal no formato MA2
-            xmlText += `        <ChannelType index="${index}" attribute="${nomeParametro}" feature="${feature}" preset="${preset}" coarse="${index + 1}">
-          <ChannelFunction index="0" from="0" to="100" min_dmx_24="0" max_dmx_24="16777215" phys_from="0" phys_to="1" click_glp="0">
-            <LogicalChannel index="0" snap="false" master="true" profile="Linear"/>
-          </ChannelFunction>
-        </ChannelType>\n`;
-        });
-
-        // 4. Fechar as tags do arquivo
-        xmlText += `      </Module>
-    </Modules>
-    <Instances index="1">
-      <Instance index="0" module_index="0"/>
-    </Instances>
-  </FixtureType>
-</MA>`;
-
-        // 5. Baixar o arquivo .xml direto no navegador do usuário
-        const blob = new Blob([xmlText], { type: 'text/xml' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = nomeArquivo;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
 
     function exportMaterialPdf() {
         const { jsPDF } = window.jspdf;
