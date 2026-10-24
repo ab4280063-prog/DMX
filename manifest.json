@@ -10,9 +10,9 @@
             "purpose": "any maskable"
         }
     ],
-    "start_url": "./index.html",
-    "background_color": "#121212",
-    "theme_color": "#121212",
+    "start_url": "./",
+    "background_color": "#061325",
+    "theme_color": "#061325",
     "display": "standalone",
     "orientation": "portrait"
 }
