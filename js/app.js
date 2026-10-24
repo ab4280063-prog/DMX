@@ -928,76 +928,6 @@ ${materialData}
         savePdf(doc, `report_${state.projectName || 'dmx'}.pdf`);
     }
 
-    function exportParamsPdf() {
-        // 1. Pega o nome do aparelho do seu estado (ex: "Par led 7ch")
-        const nomeAparelho = state.paramsFixtureName || "Aparelho_Custom";
-
-        // Cria um nome de arquivo limpo (substitui espaços por _) ex: par_led_7ch.xml
-        const nomeArquivo = nomeAparelho.toLowerCase().replace(/[^a-z0-9]/g, "_") + ".xml";
-
-        // 2. Monta o cabeçalho oficial que a GrandMA2 exige para ler no Patch
-        let xmlText = `<?xml version="1.0" encoding="utf-8"?>
-<MA xmlns:xsi="http://w3.org" xmlns="http://malighting.de" xsi:schemaLocation="http://malighting.de http://malighting.de" major_version="3" minor_version="9" stream_version="6">
-  <FixtureType index="0" name="${nomeAparelho}" short_name="${nomeAparelho.substring(0, 4)}">
-    <Modules index="0">
-      <Module index="0" name="Main Module" class="Head" beam_angle="25" beam_intensity="10000">
-`;
-
-        // 3. Varre os canais criados na tela usando as suas variáveis de estado
-        const totalCanais = state.paramsFixtureChannels || 0;
-
-        for (let i = 1; i <= totalCanais; i++) {
-            let nomeParametro = (state.fixtureParameters[i] || '---').toUpperCase().trim();
-            let feature = "DIMMER";
-            let preset = "DIMMER";
-
-            // Dicionário de conversão automático para os Encoders padrão da MA2
-            if (nomeParametro === 'DIMMER' || nomeParametro === 'DIM') {
-                nomeParametro = 'DIM'; feature = 'DIMMER'; preset = 'DIMMER';
-            } else if (nomeParametro === 'R' || nomeParametro === 'RED') {
-                nomeParametro = 'COLOR1_R'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'G' || nomeParametro === 'GREEN') {
-                nomeParametro = 'COLOR1_G'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'B' || nomeParametro === 'BLUE') {
-                nomeParametro = 'COLOR1_B'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'SHUTER' || nomeParametro === 'STROBE' || nomeParametro === 'SHUTTER') {
-                nomeParametro = 'SHUTTER'; feature = 'SHUTTER'; preset = 'BEAM';
-            } else if (nomeParametro === 'SPEED') {
-                nomeParametro = 'BEAMSPEED'; feature = 'SPEED'; preset = 'BEAM';
-            } else if (nomeParametro === 'SPEEDCOLOR' || nomeParametro === 'COLOR SPEED') {
-                nomeParametro = 'COLORSHORTCUT'; feature = 'COLOR'; preset = 'COLOR';
-            } else {
-                // Se for outro canal qualquer, mantém o nome digitado na tela
-                feature = 'DIMMER'; preset = 'DIMMER';
-            }
-
-            // Monta a linha XML do canal com o índice correto (i - 1) e o canal físico (coarse = i)
-            xmlText += `        <ChannelType index="${i - 1}" attribute="${nomeParametro}" feature="${feature}" preset="${preset}" coarse="${i}">
-          <ChannelFunction index="0" from="0" to="100" min_dmx_24="0" max_dmx_24="16777215" phys_from="0" phys_to="1" click_glp="0">
-            <LogicalChannel index="0" snap="false" master="true" profile="Linear"/>
-          </ChannelFunction>
-        </ChannelType>\n`;
-        }
-
-        // 4. Fecha as tags estruturais do arquivo
-        xmlText += `      </Module>
-    </Modules>
-    <Instances index="1">
-      <Instance index="0" module_index="0"/>
-    </Instances>
-  </FixtureType>
-</MA>`;
-
-        // 5. Executa o download automático do arquivo .xml no navegador
-        const blob = new Blob([xmlText], { type: 'text/xml' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = nomeArquivo;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
     function exportMaterialPdf() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
@@ -1165,73 +1095,22 @@ ${materialData}
     }
 
     function exportParamsPdf() {
-        // 1. Pega o nome do aparelho do seu estado (ex: "Par led 7ch")
-        const nomeAparelho = state.paramsFixtureName || "Aparelho_Custom";
-
-        // Cria um nome de arquivo limpo (substitui espaços por _) ex: par_led_7ch.xml
-        const nomeArquivo = nomeAparelho.toLowerCase().replace(/[^a-z0-9]/g, "_") + ".xml";
-
-        // 2. Monta o cabeçalho oficial que a GrandMA2 exige para ler no Patch
-        let xmlText = `<?xml version="1.0" encoding="utf-8"?>
-<MA xmlns:xsi="http://w3.org" xmlns="http://malighting.de" xsi:schemaLocation="http://malighting.de http://malighting.de" major_version="3" minor_version="9" stream_version="6">
-  <FixtureType index="0" name="${nomeAparelho}" short_name="${nomeAparelho.substring(0, 4)}">
-    <Modules index="0">
-      <Module index="0" name="Main Module" class="Head" beam_angle="25" beam_intensity="10000">
-`;
-
-        // 3. Varre os canais criados na tela usando as suas variáveis de estado
-        const totalCanais = state.paramsFixtureChannels || 0;
-
-        for (let i = 1; i <= totalCanais; i++) {
-            let nomeParametro = (state.fixtureParameters[i] || '---').toUpperCase().trim();
-            let feature = "DIMMER";
-            let preset = "DIMMER";
-
-            // Dicionário de conversão automático para os Encoders padrão da MA2
-            if (nomeParametro === 'DIMMER' || nomeParametro === 'DIM') {
-                nomeParametro = 'DIM'; feature = 'DIMMER'; preset = 'DIMMER';
-            } else if (nomeParametro === 'R' || nomeParametro === 'RED') {
-                nomeParametro = 'COLOR1_R'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'G' || nomeParametro === 'GREEN') {
-                nomeParametro = 'COLOR1_G'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'B' || nomeParametro === 'BLUE') {
-                nomeParametro = 'COLOR1_B'; feature = 'RGB'; preset = 'COLOR';
-            } else if (nomeParametro === 'SHUTER' || nomeParametro === 'STROBE' || nomeParametro === 'SHUTTER') {
-                nomeParametro = 'SHUTTER'; feature = 'SHUTTER'; preset = 'BEAM';
-            } else if (nomeParametro === 'SPEED') {
-                nomeParametro = 'BEAMSPEED'; feature = 'SPEED'; preset = 'BEAM';
-            } else if (nomeParametro === 'SPEEDCOLOR' || nomeParametro === 'COLOR SPEED') {
-                nomeParametro = 'COLORSHORTCUT'; feature = 'COLOR'; preset = 'COLOR';
-            } else {
-                // Se for outro canal qualquer, mantém o nome digitado na tela
-                feature = 'DIMMER'; preset = 'DIMMER';
-            }
-
-            // Monta a linha XML do canal com o índice correto (i - 1) e o canal físico (coarse = i)
-            xmlText += `        <ChannelType index="${i - 1}" attribute="${nomeParametro}" feature="${feature}" preset="${preset}" coarse="${i}">
-          <ChannelFunction index="0" from="0" to="100" min_dmx_24="0" max_dmx_24="16777215" phys_from="0" phys_to="1" click_glp="0">
-            <LogicalChannel index="0" snap="false" master="true" profile="Linear"/>
-          </ChannelFunction>
-        </ChannelType>\n`;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text(`LIBRARY: ${state.paramsFixtureName || 'FIXTURE'}`, 14, 22);
+        const rows = [];
+        for (let i = 1; i <= state.paramsFixtureChannels; i++) {
+            rows.push([`CH ${i}`, (state.fixtureParameters[i] || '---').toUpperCase()]);
         }
-
-        // 4. Fecha as tags estruturais do arquivo
-        xmlText += `      </Module>
-    </Modules>
-    <Instances index="1">
-      <Instance index="0" module_index="0"/>
-    </Instances>
-  </FixtureType>
-</MA>`;
-
-        // 5. Executa o download automático do arquivo .xml no navegador
-        const blob = new Blob([xmlText], { type: 'text/xml' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = nomeArquivo;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        doc.autoTable({
+            startY: 30,
+            head: [['Canal', 'Parâmetro']],
+            body: rows,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 122, 255] }
+        });
+        savePdf(doc, `library_${state.paramsFixtureName || 'fixture'}.pdf`);
     }
 
     // Start App
