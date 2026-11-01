@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dmx-pro-v1.1.3'; // Mudamos para v2 para forçar o celular a atualizar
+const CACHE_NAME = 'dmx-pro-v1.0.3'; // Mudamos para v2 para forçar o celular a atualizar
 const ASSETS = [
   './',
   './index.html',
